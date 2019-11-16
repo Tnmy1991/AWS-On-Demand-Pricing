@@ -35,15 +35,13 @@ if str(response_1.status_code) == '200' and str(response_2.status_code) == '200'
         if regionSpotPricing.get("region") == region:
             regionSpotPricing = regionSpotPricing.get("instanceTypes")
             break
-
     for item in regionSpotPricing:
-        family = item.get("type").replace("CurrentGen", "").replace("PreviousGen", "")
         for i in item.get("sizes"):
             size = i.get("size")
             for j in i.get("valueColumns"):
                 if j.get("name") == spotEnvName:
                     price = j.get("prices").get("USD")
-                    spotPricing[family + "_" + size + "_" + spotEnvName] = price
+                    spotPricing[size + "_" + spotEnvName] = price
 
     onDemandPrice = json.loads(response_1.text)
     onDemandPrices = onDemandPrice.get("prices")
@@ -52,11 +50,10 @@ if str(response_1.status_code) == '200' and str(response_2.status_code) == '200'
     print("Processing data...")
     for price in onDemandPrices:
         attributes = price.get("attributes")
-        spotInst = attributes.get("aws:ec2:instanceFamily").split(" ")[0].lower()
         attributes["id"] = price.get("id")
         attributes["price"] = price.get("price").get("USD")
         attributes["unit"] = price.get("unit")
-        attributes["spot"] = spotPricing.get(spotInst+"_"+attributes.get("aws:ec2:instanceType")+"_"+spotEnvName)
+        attributes["spot"] = spotPricing.get(attributes.get("aws:ec2:instanceType")+"_"+spotEnvName)
         newList.append(attributes)
 
     newList.sort(key=itemgetter('aws:ec2:instanceFamily'))

@@ -1,1 +1,5 @@
+# file: ~/.gitignore_global
+.DS_Store
+.idea
+
 aws-on-demand-pricing-*.csv
