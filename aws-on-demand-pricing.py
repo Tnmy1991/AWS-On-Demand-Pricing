@@ -7,15 +7,59 @@ from operator import itemgetter
 from itertools import groupby
 
 print("=========== Amazon EC2 On-Demand & Spot Price compare csv ===========")
+validRegion = {
+    "us-east-1": "US East (N. Virginia)",
+    "us-east-2": "US East (Ohio)",
+    "us-west-1": "US West (Northern California)",
+    "us-west-2": "US West (Oregon)",
+    "ap-east-1": "Asia Pacific (Hong Kong)",
+    "ap-south-1": "Asia Pacific (Mumbai)",
+    "ap-northeast-2": "Asia Pacific (Seoul)",
+    "ap-southeast-1": "Asia Pacific (Singapore)",
+    "ap-southeast-2": "Asia Pacific (Sydney)",
+    "ap-northeast-1": "Asia Pacific (Tokyo)",
+    "ca-central-1": "Canada (Central)",
+    "eu-central-1": "EU (Frankfurt)",
+    "eu-west-1": "EU (Ireland)",
+    "eu-west-2": "EU (London)",
+    "eu-west-3": "EU (Paris)",
+    "eu-north-1": "EU (Stockholm)",
+    "me-south-1": "Middle East (Bahrain)",
+    "sa-east-1": "South America (Sao Paulo)",
+    "us-gov-east-1": "AWS GovCloud (US-East)",
+    "us-gov-west-1": "AWS GovCloud (US-West)"
+}
+validEnv = {
+    "linux": "Linux/UNIX",
+    "rhel": "Red Hat Enterprise Linux",
+    "suse": "SUSE Linux Enterprise Server",
+    "windows": "Windows",
+    "windows-std": "Windows with SQL Standard",
+    "windows-web": "Windows with SQL Web",
+    "windows-enterprise": "Windows with SQL Enterprise",
+    "linux-std": "Linux with SQL Standard",
+    "linux-web": "Linux with SQL Web",
+    "linux-enterprise": "Linux with SQL Enterprise"
+}
 region = sys.argv[1]
 env = sys.argv[2]
-print("Region: " + region)
-print("Environment: " + env)
-onDemandLabel = 'Linux/UNIX' if env == 'linux' else 'Red Hat Enterprise Linux' if env == 'rhel' else \
-    'SUSE Linux Enterprise Server' if env == 'suse' else 'Windows' if env == 'windows' else 'Windows with SQL Standard' \
-    if env == 'windows-std' else 'Windows with SQL Web' if env == 'windows-web' else 'Windows with SQL Enterprise' \
-    if env == 'windows-enterprise' else 'Linux with SQL Standard' if env == 'linux-std' else 'Linux with SQL Web' \
-    if env == 'linux-web' else 'Linux with SQL Enterprise'
+if validRegion.get(region):
+    print("Region: " + validRegion.get(region))
+else:
+    print("You've entered an invalid region. See the valid region below,")
+    for x, y in validRegion.items():
+        print(x + " ===> " + y)
+    exit()
+
+if validEnv.get(env):
+    onDemandLabel = validEnv.get(env)
+    print("Environment: " + onDemandLabel)
+else:
+    print("You've entered an invalid environment. See the valid environment below,")
+    for x, y in validEnv.items():
+        print(x + " ===> " + y)
+    exit()
+
 spotLabel = 'Linux/UNIX' if 'Linux' in onDemandLabel else 'Windows'
 spotEnvName = 'linux' if 'Linux' in spotLabel else 'mswin'
 timestamp = str(round(time.time()))
