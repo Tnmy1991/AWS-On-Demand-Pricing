@@ -1,12 +1,12 @@
-import sys
 import requests
 import time
 import json
 import csv
+import sys
 from operator import itemgetter
 from itertools import groupby
 
-print("########## Amazon EC2 On-Demand Pricing ##########")
+print("=========== Amazon EC2 On-Demand & Spot Price compare csv ===========")
 region = sys.argv[1]
 env = sys.argv[2]
 print("Region: " + region)
@@ -21,10 +21,11 @@ spotEnvName = 'linux' if 'Linux' in spotLabel else 'mswin'
 timestamp = str(round(time.time()))
 onDemandUrl = "https://a0.p.awsstatic.com/pricing/1.0/ec2/region/" + region + "/ondemand/" + env + "/index.json?timestamp=" + timestamp
 spotUrl = "https://website.spot.ec2.aws.a2z.com/spot.js?callback=callback&_=" + timestamp
+print("Getting data ...")
 response_1 = requests.get(onDemandUrl)
 response_2 = requests.get(spotUrl)
 if str(response_1.status_code) == '200' and str(response_2.status_code) == '200':
-    print("Preparing data...")
+    print("Preparing data ...")
     spotPrice = response_2.text
     spotPrice = spotPrice.replace("callback(", "").replace(");", "")
     spotPrice = json.loads(spotPrice)
@@ -35,6 +36,7 @@ if str(response_1.status_code) == '200' and str(response_2.status_code) == '200'
         if regionSpotPricing.get("region") == region:
             regionSpotPricing = regionSpotPricing.get("instanceTypes")
             break
+
     for item in regionSpotPricing:
         for i in item.get("sizes"):
             size = i.get("size")
@@ -47,7 +49,6 @@ if str(response_1.status_code) == '200' and str(response_2.status_code) == '200'
     onDemandPrices = onDemandPrice.get("prices")
     newList = []
 
-    print("Processing data...")
     for price in onDemandPrices:
         attributes = price.get("attributes")
         attributes["id"] = price.get("id")
@@ -57,8 +58,9 @@ if str(response_1.status_code) == '200' and str(response_2.status_code) == '200'
         newList.append(attributes)
 
     newList.sort(key=itemgetter('aws:ec2:instanceFamily'))
-    filename = 'aws-on-demand-pricing-' + region + '-' + env + '-' + timestamp + '.csv'
+    print("Data successfully prepared.")
     print("Preparing csv file ...")
+    filename = 'aws-on-demand-pricing-' + region + '-' + env + '-' + timestamp + '.csv'
     with open(filename, 'w', newline='') as file:
         groupFlag = 0
         filePointer = csv.writer(file, delimiter='#', quotechar='|', quoting=csv.QUOTE_MINIMAL)
